@@ -286,6 +286,72 @@ elif system == "3":
         print(f"The polynomial function pn(x) = {pn_x}.")
 
 elif system == "4":
-    print("Not implemented yet.")
+    method = input('[a] Trapezoidal [b]Simpsons')
+    
+    if method == "a":
+        def trapezoidal_integration(f, a, b, h):
+            n = int((b - a) / h)  # Number of subintervals
+            x_values = [a + i * h for i in range(n + 1)]  # x-values for the subintervals
+            y_values = [f(x) for x in x_values]  # y-values for the function
+            integral = (y_values[0] + y_values[-1]) / 2  # Sum of the first and last terms
+            integral += sum(y_values[1:-1])  # Sum of the intermediate terms
+            integral *= h  # Multiply by the width of each subinterval
+            return integral
+        def get_user_function():
+            print("Enter your function (use 'x' as the variable):")
+            function_string = input()
+            return lambda x: eval(function_string)
+
+        # Example usage
+        print("Enter the lower limit of integration (a):")
+        a = float(input())
+
+        print("Enter the upper limit of integration (b):")
+        b = float(input())
+
+        print("Enter the width of each subinterval (h):")
+        h = float(input())
+
+        # Get user-defined function
+        f = get_user_function()
+
+        # Trapezoidal integration
+        T = trapezoidal_integration(f, a, b, h)
+        print("Trapezoidal Integration:", T)
+        
+    if method == "b":
+        
+        def simpson_integration(f, a, b, h):
+            n = int((b - a) / h)  # Number of subintervals
+            x_values = [a + i * h for i in range(n + 1)]  # x-values for the subintervals
+            y_values = [f(x) for x in x_values]  # y-values for the function
+            integral = y_values[0] + y_values[-1]  # Sum of the first and last terms
+            for i in range(1, n):
+                if i % 2 == 0:
+                    integral += 2 * y_values[i]  # Multiply even-indexed terms by 2
+                else:
+                    integral += 4 * y_values[i]  # Multiply odd-indexed terms by 4
+            integral *= h / 3  # Multiply by h/3
+            return integral
+        def get_user_function():
+            print("Enter your function (use 'x' as the variable):")
+            function_string = input()
+            return lambda x: eval(function_string)
+
+    # Example usage
+        print("Enter the lower limit of integration (a):")
+        a = float(input())
+
+        print("Enter the upper limit of integration (b):")
+        b = float(input())
+
+        print("Enter the width of each subinterval (h):")
+        h = float(input())
+
+        # Get user-defined function
+        f = get_user_function()
+        S = simpson_integration(f, a, b, h)
+        print("Simpson's Integration:", S)
+
 else:
     print("Invalid option. Please try again.")
