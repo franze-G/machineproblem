@@ -1,9 +1,48 @@
+import math
+
 system = input('\n[1] Accuracy Numerical Calculation '
                '\n[2] Interpolation and Polynomial Approximation'
                '\n[3] Numerical Differentiation'
                '\n[4] Numerical Integration'
                '\nOption: ')
 
+if system == "1":
+    method = input('[a] mclaurin formula [b] finding error: ')
+
+    if method == "a":
+        func = input("Enter a function in terms of x: ")
+        n = int(input("Enter the number of terms to approximate: "))
+        dp = int(input("Enter the number of decimal places to round to: "))
+
+        # Maclaurin Series Calculation
+        def maclaurin_series(func, n):
+            sum = 0
+            for i in range(n+1):
+                f = eval(func.replace('x', '0'))
+                d = eval(func.replace('x', '0.0'))
+                sum += (d/math.factorial(i)) * (0**i)
+                func = func.replace('x', '(x-0)')
+            return sum
+
+        maclaurin_series = maclaurin_series(func, n)
+        print("Maclaurin Series: ", maclaurin_series)
+        
+    if method == "b":
+            av_round = round(abs(maclaurin_series), dp)
+            abs_error_round = round(abs(eval(func.replace('x', '0')) - av_round), dp)
+            rel_error_round = round(abs_error_round/abs(eval(func.replace('x', '0'))), dp)
+            print("Absolute Value - Rounding: ", av_round)
+            print("Absolute Error - Rounding: ", abs_error_round)
+            print("Relative Error - Rounding: ", rel_error_round)
+
+            # Chopping
+            av_chop = float(str(abs(maclaurin_series))[:dp+2])
+            abs_error_chop = abs(eval(func.replace('x', '0')) - av_chop)
+            rel_error_chop = abs_error_chop / abs(eval(func.replace('x', '0')))
+            print("Absolute Value - Chopping: ", av_chop)
+            print("Absolute Error - Chopping: ", abs_error_chop)
+            print("Relative Error - Chopping: ", rel_error_chop)
+            
 if system == "2":
     method = input('[a] Bisection Method [b] Secant Method: ')
 
