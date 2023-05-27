@@ -286,72 +286,140 @@ elif system == "3":
         print(f"The polynomial function pn(x) = {pn_x}.")
 
 elif system == "4":
-    method = input('[a] Trapezoidal [b]Simpsons')
+   import math
+
+def f(x):
+    """Define the function f(x)"""
+    return math.exp(2 * x)
+
+def convert_expression(expression):
+    """Convert the input expression to Python syntax"""
+    expression = expression.replace('^', '**')
+    expression = expression.replace('e', 'math.exp(1)')
+    expression = expression.replace('sin', 'math.sin')
+    expression = expression.replace('cos', 'math.cos')
+    expression = expression.replace('tan', 'math.tan')
+    expression = expression.replace('log', 'math.log')
+    expression = expression.replace('sqrt', 'math.sqrt')
+    expression = expression.replace('pi', 'math.pi')
+    expression = expression.replace('/', ' / ')
+
+    return expression
+
+def trapezoidal_rule(f, a, b, n):
+    """Trapezoidal Rule"""
+    h = (b - a) / n
+    results = []
+    for i in range(n + 1):
+        xi = a + i * h
+        try:
+            fxi = f(xi)
+        except (ValueError, ZeroDivisionError, OverflowError, TypeError):
+            fxi = float('nan')  
+        if i == 0 or i == n:
+            Ti = fxi
+        else:
+            Ti = 2 * fxi
+        results.append((i, xi, fxi, Ti))
+    sum_Ti = sum(Ti for i, xi, fxi, Ti in results)
+    approx_integral = (h / 2) * sum_Ti
+    return results, approx_integral
+
+def simpsons(f, a, b, n):
+    """Simpson's 1/3 Rule"""
+    h = (b - a) / n
+    results = []
+    for i in range(n + 1):
+        xi = a + i * h
+        try:
+            fxi = f(xi)
+        except (ValueError, ZeroDivisionError, OverflowError, TypeError):
+            fxi = float('nan')  
+        if i == 0 or i == n:
+            Si = fxi
+        elif i % 2 == 1:
+            Si = 4 * fxi
+        else:
+            Si = 2 * fxi
+        results.append((i, xi, fxi, Si))
+    sum_Si = sum(Si for i, xi, fxi, Si in results)
+    approx_integral = (h / 3) * sum_Si
+    return results, approx_integral
+
+
+def check_convergence_difference(approximations, threshold):
+    for i in range(1, len(approximations)):
+        difference = abs(approximations[i] - approximations[i-1])
+        if difference < threshold:
+            return True
+    return False
+
+def check_convergence_relative_change(approximations, threshold):
+    for i in range(1, len(approximations)):
+        relative_change = abs(approximations[i] - approximations[i-1]) / abs(approximations[i-1])
+        if relative_change < threshold:
+            return True
+    return False
+
+
+while True:
+    try:
+
+        f_input = input("Enter the function f(x): ")
+        a_input = float(input("Enter the lower limit (a): "))
+        b_input = float(input("Enter the upper limit (b): "))
+        n_input = int(input("Enter the number of intervals: "))
+
     
-    if method == "a":
-        def trapezoidal_integration(f, a, b, h):
-            n = int((b - a) / h)  # Number of subintervals
-            x_values = [a + i * h for i in range(n + 1)]  # x-values for the subintervals
-            y_values = [f(x) for x in x_values]  # y-values for the function
-            integral = (y_values[0] + y_values[-1]) / 2  # Sum of the first and last terms
-            integral += sum(y_values[1:-1])  # Sum of the intermediate terms
-            integral *= h  # Multiply by the width of each subinterval
-            return integral
-        def get_user_function():
-            print("Enter your function (use 'x' as the variable):")
-            function_string = input()
-            return lambda x: eval(function_string)
+        def_input = lambda x: eval(convert_expression(f_input))
 
-        # Example usage
-        print("Enter the lower limit of integration (a):")
-        a = float(input())
-
-        print("Enter the upper limit of integration (b):")
-        b = float(input())
-
-        print("Enter the width of each subinterval (h):")
-        h = float(input())
-
-        # Get user-defined function
-        f = get_user_function()
-
-        # Trapezoidal integration
-        T = trapezoidal_integration(f, a, b, h)
-        print("Trapezoidal Integration:", T)
         
-    if method == "b":
+        trapezoidal_results, trapezoidal_approx_integral = trapezoidal_rule(def_input, a_input, b_input, n_input)
+     
+        simpsons_results, simpsons_approx_integral = simpsons(def_input, a_input, b_input, n_input)
+
+
+        delta_x = (b_input - a_input) / n_input
+        print("\nΔx:", delta_x)
+
         
-        def simpson_integration(f, a, b, h):
-            n = int((b - a) / h)  # Number of subintervals
-            x_values = [a + i * h for i in range(n + 1)]  # x-values for the subintervals
-            y_values = [f(x) for x in x_values]  # y-values for the function
-            integral = y_values[0] + y_values[-1]  # Sum of the first and last terms
-            for i in range(1, n):
-                if i % 2 == 0:
-                    integral += 2 * y_values[i]  # Multiply even-indexed terms by 2
-                else:
-                    integral += 4 * y_values[i]  # Multiply odd-indexed terms by 4
-            integral *= h / 3  # Multiply by h/3
-            return integral
-        def get_user_function():
-            print("Enter your function (use 'x' as the variable):")
-            function_string = input()
-            return lambda x: eval(function_string)
+        print("\nTrapezoidal Rule Table:")
+        print("i\t xi\t\t f(xi)\t\t\t\t Ti")
+        for i, xi, fxi, Ti in trapezoidal_results:
+            print(f"{i}\t {xi}\t {fxi:.14f}\t {Ti:.14f}")
+        
+        print("ΣTi:", sum(Ti for i, xi, fxi, Ti in trapezoidal_results))
+      
+        print("T:", trapezoidal_approx_integral)
 
-    # Example usage
-        print("Enter the lower limit of integration (a):")
-        a = float(input())
+       
+        print("\nSimpson's 1/3 Rule Table:")
+        print("i\t xi\t\t f(xi)\t\t\t\t Si")
+        for i, xi, fxi, Si in simpsons_results:
+            print(f"{i}\t {xi}\t {fxi:.14f}\t {Si:.14f}")
+        print("ΣSi:", sum(Si for i, xi, fxi, Si in simpsons_results))
+        print("S:", simpsons_approx_integral)
 
-        print("Enter the upper limit of integration (b):")
-        b = float(input())
+        approximations = [trapezoidal_approx_integral, simpsons_approx_integral]
+        threshold_difference = 1e-6  
+        threshold_relative_change = 1e-6  
 
-        print("Enter the width of each subinterval (h):")
-        h = float(input())
+        if check_convergence_difference(approximations, threshold_difference):
+            print("The integral is convergent based on absolute difference check.")
+        else:
+            print("The integral is divergent based on absolute difference check.")
 
-        # Get user-defined function
-        f = get_user_function()
-        S = simpson_integration(f, a, b, h)
-        print("Simpson's Integration:", S)
+        if check_convergence_relative_change(approximations, threshold_relative_change):
+            print("The integral is convergent based on relative change check.")
+        else:
+            print("The integral is divergent based on relative change check.")
+
+    except (ValueError, ZeroDivisionError, OverflowError, TypeError):
+        print("The integral is undefined or cannot be evaluated.")
+
+    repeat = input("\nDo you want to calculate another integral? (y/n): ")
+    if repeat.lower() != "y":
+        break
 
 else:
     print("Invalid option. Please try again.")
